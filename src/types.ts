@@ -1,0 +1,1 @@
+export type StoryPage = { animationDuration: number, animationDelay: number; };
