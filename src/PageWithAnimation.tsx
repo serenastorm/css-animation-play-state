@@ -4,42 +4,51 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import { StoryPage } from './types';
+import { Animation } from './types';
 import styles from './animationStyles.module.css';
+import { useEffect, useRef } from 'react';
 
-export const PageWithAnimation = ({ animationDuration, animationDelay: delayBeforeStart }: StoryPage) => {
+export const PageWithAnimation = ({ animations }: { animations: Animation[] }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const startingFrame = delayBeforeStart * fps;
-  const totalDuration = animationDuration + delayBeforeStart;
-  const totalFrames = totalDuration * fps;
+  useEffect(() => {
+    animations.forEach(({ animationDuration, animationDelay: delayBeforeStart, elementId }) => {
+      const element = containerRef.current?.querySelector(`#${elementId}`);
+      if (!element) return null;
+      const startingFrame = delayBeforeStart * fps;
+      const totalDuration = animationDuration + delayBeforeStart;
+      const totalFrames = totalDuration * fps;
 
-  const progress = interpolate(frame, [startingFrame, totalFrames], [0, 1], {
-    extrapolateRight: 'clamp',
-  });
+      const progress = interpolate(frame, [startingFrame, totalFrames], [0, 1], {
+        extrapolateRight: 'clamp',
+      });
 
-  const animationDelay = progress * -animationDuration;
+      const animationDelay = progress * -animationDuration;
+      element.style.animationDelay = `${animationDelay}s`;
+    })
+  }, [animations, fps, frame]); // Re-runs when frame is updated
 
   return (
-    <AbsoluteFill className={styles.page}>
+    <AbsoluteFill className={styles.page} ref={containerRef}>
       <div
         className={styles.step1}
+        id="step1"
         style={{
           animationPlayState: 'paused',
-          animationDelay: `${animationDelay}s`,
         }}
       >
-        <p>100</p>
+        <p>Text 1</p>
       </div>
       <div
         className={styles.step2}
+        id="step2"
         style={{
           animationPlayState: 'paused',
-          animationDelay: `${animationDelay}s`,
         }}
       >
-        <p>102</p>
+        <p>Text 2</p>
       </div>
     </AbsoluteFill>
   );

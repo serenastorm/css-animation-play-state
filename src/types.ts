@@ -1,1 +1,1 @@
-export type StoryPage = { animationDuration: number, animationDelay: number; };
+export type Animation = { animationDuration: number, animationDelay: number; elementId: string; };
